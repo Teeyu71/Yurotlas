@@ -4,669 +4,148 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Yurotlas</title>
-    <style>
+
+  <style>
     :root {
-      --bg:#020617; --bg2:#0f172a; --panel:rgba(15,23,42,.9); --card:#0b1220;
-      --border:#223047; --text:#e5eefc; --muted:#93a4bf; --accent:#38bdf8; --white:#fff;
-      --shadow:0 18px 50px rgba(0,0,0,.35);
+      --bg:#020617;
+      --bg2:#0f172a;
+      --card:#0b1220;
+      --border:#223047;
+      --text:#e5eefc;
+      --muted:#93a4bf;
+      --accent:#38bdf8;
     }
-    * { box-sizing:border-box; }
+
     body {
-      margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:linear-gradient(180deg,var(--bg),var(--bg2)); color:var(--text);
+      margin:0;
+      font-family:Inter,system-ui;
+      background:linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--text);
     }
+
     .app {
-      width:min(1400px, calc(100% - 24px)); margin:12px auto; display:grid; grid-template-columns:380px 1fr; gap:14px;
+      max-width:900px;
+      margin:40px auto;
+      padding:20px;
     }
+
     .panel {
-      background:var(--panel); border:1px solid var(--border); border-radius:28px; box-shadow:var(--shadow); backdrop-filter:blur(10px);
-    }
-    .sidebar { padding:18px; position:sticky; top:12px; height:calc(100vh - 24px); overflow:auto; }
-    .title-row { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:18px; }
-    .title h1 { margin:0; font-size:2rem; }
-    .title p { margin:6px 0 0; color:var(--muted); }
-    .pin { width:50px; height:50px; border-radius:18px; display:grid; place-items:center; background:rgba(56,189,248,.14); color:var(--accent); font-size:1.4rem; }
-    .controls { display:grid; gap:10px; margin-bottom:16px; }
-    .input,.select {
-      width:100%; background:var(--card); border:1px solid #334155; color:var(--text);
-      border-radius:16px; padding:12px 14px; font-size:.95rem;
-    }
-    .filters { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .stats { color:var(--muted); font-size:.88rem; margin-bottom:10px; }
-    .list { display:grid; gap:10px; }
-    .spot {
-      width:100%; text-align:left; background:var(--card); border:1px solid var(--border); color:var(--text);
-      padding:14px; border-radius:18px; cursor:pointer; transition:.18s ease;
-    }
-    .spot:hover { border-color:#3b4d68; transform:translateY(-1px); }
-    .spot.active { border-color:var(--accent); background:rgba(14,165,233,.08); }
-    .spot-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:8px; }
-    .spot-name { margin:0 0 4px; font-size:1rem; font-weight:600; }
-    .spot-meta { margin:0; color:var(--muted); font-size:.86rem; }
-    .spot-desc { margin:0; color:#c9d6ea; font-size:.92rem; line-height:1.45; }
-    .tag { background:#162235; border:1px solid #31435f; color:#d8e5f9; border-radius:999px; padding:6px 10px; font-size:.78rem; white-space:nowrap; }
-    .content { display:flex; flex-direction:column; gap:14px; }
-    .head { display:flex; justify-content:space-between; gap:12px; align-items:center; padding:18px; border-bottom:1px solid var(--border); }
-    .head h2 { margin:0; font-size:1.25rem; }
-    .head p { margin:4px 0 0; color:var(--muted); font-size:.9rem; }
-    .btn {
-      display:inline-flex; align-items:center; gap:8px; text-decoration:none; border:0; cursor:pointer;
-      background:var(--accent); color:#06283a; padding:11px 15px; border-radius:16px; font-weight:700;
-    }
-    #map { height:50vh; min-height:380px; width:100%; border-radius:0 0 28px 28px; }
-    .detail { padding:18px; }
-    .detail h3 { margin:0; font-size:1.5rem; }
-    .detail .meta { margin:8px 0 14px; color:var(--muted); }
-    .detail p { margin:0 0 10px; color:#d7e2f2; line-height:1.6; }
-    .detail a { color:var(--accent); }
-    .pill-note { display:inline-block; margin-top:10px; padding:6px 10px; border-radius:999px; background:#3f2b04; color:#ffd985; font-size:.78rem; border:1px solid #7a5d12; }
-    .empty { padding:18px; border:1px dashed #334155; border-radius:18px; color:var(--muted); text-align:center; }
-    .lower-section { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    .list-panel { padding:14px; max-height:430px; overflow-y:auto; border-radius:28px; }
-    @media (max-width: 980px) {
-      .app { grid-template-columns:1fr; }
-      .sidebar { position:static; height:auto; }
-      #map { height:350px; min-height:350px; }
-      .lower-section { grid-template-columns:1fr; }
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:20px;
     }
 
-    .map-shell { position:relative; }
-    .map-placeholder {
-      min-height:380px; display:grid; place-items:center; text-align:center; padding:24px;
-      border-radius:0 0 28px 28px; color:var(--muted); background:linear-gradient(180deg,#09111f,#0b1220);
-      border-top:1px solid var(--border);
-    }
-    .map-placeholder strong { color:var(--text); display:block; margin-bottom:8px; font-size:1.05rem; }
-    .map-actions { display:flex; gap:10px; flex-wrap:wrap; }
-    .btn-secondary {
-      display:inline-flex; align-items:center; gap:8px; text-decoration:none; border:1px solid #334155; cursor:pointer;
-      background:var(--card); color:var(--text); padding:11px 15px; border-radius:16px; font-weight:700;
-    }
-    .btn[disabled] { opacity:.6; cursor:not-allowed; }
-
-  
-    .brand { display:flex; gap:14px; align-items:center; }
-    .brand-copy h1 { margin:0; font-size:1.9rem; line-height:1.1; letter-spacing:.01em; }
-    .brand-copy p { margin:6px 0 0; color:var(--muted); line-height:1.45; font-size:.95rem; }
-    .brand-logo { width:64px; height:64px; border-radius:20px; display:block; flex:0 0 auto; box-shadow:0 12px 30px rgba(0,0,0,.25); border:1px solid rgba(56,189,248,.28); background:#0b1220; padding:4px; }
-    .helper-row { display:flex; gap:10px; flex-wrap:wrap; margin:-2px 0 16px; }
-    .chip {
-      display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px;
-      background:#101a2c; border:1px solid var(--border); color:var(--muted); font-size:.83rem;
-    }
-    .quick-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
-    .btn-ghost {
-      display:inline-flex; align-items:center; gap:8px; text-decoration:none; border:1px solid #334155; cursor:pointer;
-      background:transparent; color:var(--text); padding:11px 15px; border-radius:16px; font-weight:700;
-    }
-    .detail-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
-    .detail-card-note { margin-top:12px; color:var(--muted); font-size:.88rem; }
-    .mobile-bar { display:none; }
-    @media (max-width: 980px) {
-      .sidebar { padding:16px; }
-      .brand { align-items:flex-start; }
-      .brand-logo { width:56px; height:56px; }
-      .brand-copy h1 { font-size:1.6rem; }
-      .head { flex-direction:column; align-items:flex-start; }
-      .map-actions, .quick-actions, .detail-actions { width:100%; }
-      .map-actions > *, .quick-actions > * { flex:1 1 180px; justify-content:center; }
-      .lower-section { gap:12px; }
-      .list-panel { max-height:none; }
-      .detail { order:-1; }
-      .mobile-bar {
-        display:grid; grid-template-columns:1fr 1fr; gap:10px; position:sticky; bottom:10px; z-index:20;
-        margin-top:10px;
-      }
-      .mobile-bar button { justify-content:center; }
+    /* 🔥 NEUER HEADER */
+    .header {
+      display:flex;
+      align-items:center;
+      gap:15px;
+      margin-bottom:15px;
     }
 
+    .logo {
+      width:70px;
+      height:70px;
+    }
+
+    .subtitle {
+      color:var(--muted);
+      margin:0;
+      font-size:0.95rem;
+    }
+
+    .badges {
+      display:flex;
+      gap:10px;
+      margin:15px 0;
+      flex-wrap:wrap;
+    }
+
+    .badge {
+      border:1px solid var(--border);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:0.85rem;
+      color:var(--muted);
+    }
+
+    input, select {
+      width:100%;
+      margin-top:10px;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:var(--bg2);
+      color:white;
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .buttons {
+      display:flex;
+      gap:10px;
+      margin-top:15px;
+    }
+
+    button {
+      flex:1;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:transparent;
+      color:white;
+      cursor:pointer;
+    }
+
+    button:hover {
+      border-color:var(--accent);
+    }
   </style>
 </head>
+
 <body>
-  <div class="app">
-    <aside class="panel sidebar">
-      <div class="title-row">
-        <div class="brand">
-          <img class="brand-logo" src="./yurotlas-logo-v2.svg" alt="Yurotlas Logo" />
-          <div class="brand-copy">
-            <h1>Yurotlas</h1>
-            <p>Deine Reise- und Spot-Übersicht. Optimiert für Mobile und schnelle Nutzung.</p>
-          </div>
-        </div>
-      </div>
 
-      <div class="helper-row">
-        <span class="chip">⚡ Schneller Start</span>
-        <span class="chip">📱 Mobile optimiert</span>
-        <span class="chip">🗺️ Interaktive Karte</span>
-      </div>
+<div class="app">
+  <div class="panel">
 
-      <div class="controls">
-        <input id="search" class="input" type="text" placeholder="Suchen nach Ort, Stadt, Kategorie..." />
-        <div class="filters">
-          <select id="countryFilter" class="select"></select>
-          <select id="cityFilter" class="select"></select>
-        </div>
-        <div class="filters">
-          <!-- FIX: Kategorie-Filter zeigt nun einzelne, deduplizierte Kategorien -->
-          <select id="categoryFilter" class="select"></select>
-          <select id="approxFilter" class="select">
-            <option value="Alle">Alle Pins</option>
-            <option value="Exakt">Nur exakte Pins</option>
-            <option value="Ungefähr">Nur ungefähre Pins</option>
-          </select>
-        </div>
+    <!-- 🔥 LOGO STATT TITEL -->
+    <div class="header">
+      <img src="./yurotlas-logo-v2.svg" class="logo" />
+      <div>
+        <p class="subtitle">
+          Deine Reise- und Spot-Übersicht. Optimiert für Mobile.
+        </p>
       </div>
+    </div>
 
-      <div class="quick-actions">
-        <button id="clearFiltersBtn" class="btn-ghost" type="button">Filter zurücksetzen</button>
-        <button id="jumpToMapBtn" class="btn-ghost" type="button">Zur Karte</button>
-      </div>
+    <div class="badges">
+      <div class="badge">⚡ Schneller Start</div>
+      <div class="badge">📱 Mobile optimiert</div>
+      <div class="badge">🗺️ Interaktive Karte</div>
+    </div>
 
-    </aside>
+    <input placeholder="Suchen nach Ort, Stadt, Kategorie..." />
 
-    <main class="content">
-      <section class="panel">
-        <div class="head">
-          <div>
-            <h2>Karte</h2>
-            <p>Die Karte steht dir auf Knopfdruck zur Verfügung.</p>
-          </div>
-          <div class="map-actions">
-            <button id="loadMapBtn" class="btn-secondary" type="button">Karte laden</button>
-            <button id="fitMapBtn" class="btn" type="button" disabled>Auf Treffer zoomen</button>
-          </div>
-        </div>
-        <div class="map-shell">
-          <div id="mapPlaceholder" class="map-placeholder">
-            <div>
-              <strong>Die Karte ist bereit.</strong>
-              Klicke auf „Karte laden“, um die interaktive Kartenansicht zu öffnen.
-            </div>
-          </div>
-          <div id="map" hidden></div>
-        </div>
-      </section>
+    <div class="grid">
+      <select><option>Land</option></select>
+      <select><option>Stadt</option></select>
+      <select><option>Kategorie</option></select>
+      <select><option>Alle Pins</option></select>
+    </div>
 
-      <div class="lower-section">
-        <div class="panel list-panel">
-          <div id="stats" class="stats"></div>
-          <div id="spotList" class="list"></div>
-        </div>
-        <section class="panel detail" id="detailPanel">
-          <h3>Spot auswählen</h3>
-          <div class="meta">Wähle links einen Eintrag oder nach dem Laden einen Marker auf der Karte.</div>
-          <p>Dann siehst du hier Details, einen Direktlink und kannst schneller zwischen Liste und Karte wechseln.</p>
-          <div class="detail-actions">
-            <button id="detailToMapBtn" class="btn-ghost" type="button">Zur Karte</button>
-          </div>
-          <div class="detail-card-note">Tipp: Auf dem Handy bleibt die Detailansicht oberhalb der Liste, damit du weniger scrollen musst.</div>
-        </section>
-      </div>
-    <div class="mobile-bar">
-        <button id="mobileLoadMapBtn" class="btn-secondary" type="button">Karte laden</button>
-        <button id="mobileTopBtn" class="btn" type="button">Nach oben</button>
-      </div>
-    </main>
+    <div class="buttons">
+      <button>Filter zurücksetzen</button>
+      <button>Zur Karte</button>
+    </div>
+
   </div>
+</div>
 
-  <script>
-    // ── Daten ──────────────────────────────────────────────────────────────────
-    // FIX: Duplikate entfernt (Euromast doppelt: id 7 & 26; Ajax/Arena doppelt: id 24 & 48)
-    const spots = [
-      { id:1,  country:"Niederlande", city:"Rotterdam",       category:"Essen, Trinken, Erleben",        name:"Witte de Withstraat",     description:"",                              url:"https://de.wikipedia.org/wiki/Witte_de_Withstraat_(Rotterdam)", lat:51.91571,         lng:4.4774791,        approximate:false },
-      { id:2,  country:"Niederlande", city:"Rotterdam",       category:"Essen, Trinken, Erleben",        name:"Oude Haven",              description:"",                              url:"https://nl.wikipedia.org/wiki/Oude_Haven_(Rotterdam)",          lat:51.91938,         lng:4.49222,          approximate:false },
-      { id:3,  country:"Niederlande", city:"Rotterdam",       category:"Architektur",                    name:"Kubus Häuser, Bleistiftturm", description:"",                          url:"https://www.kubuswoning.nl/bezoeken.html",                       lat:51.920158,        lng:4.490702,         approximate:false },
-      { id:4,  country:"Niederlande", city:"Rotterdam",       category:"Architektur, Essen, Trinken",    name:"Markthal",                description:"",                              url:"https://markthal.nl/",                                          lat:51.92005,         lng:4.486886,         approximate:false },
-      { id:5,  country:"Niederlande", city:"Rotterdam",       category:"Erleben",                        name:"Hafentour",               description:"",                              url:"https://www.spido.nl/",                                         lat:51.910621,        lng:4.482312,         approximate:false },
-      { id:6,  country:"Niederlande", city:"Rotterdam",       category:"Architektur, Geschichte",        name:"Hotel New York",          description:"",                              url:"https://en.wikipedia.org/wiki/Hotel_New_York_(Rotterdam)",       lat:51.904083,        lng:4.484278,         approximate:false },
-      { id:7,  country:"Niederlande", city:"Rotterdam",       category:"Erleben, Aussicht",              name:"Euromast",                description:"Rotterdam aus der Höhe geniessen", url:"https://euromast.nl/en/",                                    lat:51.905445,        lng:4.466637,         approximate:false },
-      { id:8,  country:"Niederlande", city:"Rotterdam",       category:"Übernachtung",                   name:"IBIS Hotel",              description:"",                              url:"https://all.accor.com/hotel/8188/index.de.shtml",               lat:51.917381,        lng:4.488417,         approximate:false },
-      { id:9,  country:"Niederlande", city:"Rotterdam",       category:"Essen, Trinken, Erleben",        name:"Delfshaven",              description:"",                              url:"https://de.wikipedia.org/wiki/Delfshaven",                      lat:51.904331,        lng:4.442331,         approximate:false },
-      { id:10, country:"Niederlande", city:"Rotterdam",       category:"Übernachtung",                   name:"Float Hotel",             description:"Unbekannt",                     url:"https://www.floatsrotterdam.com/en/",                            lat:51.9177,          lng:4.489,            approximate:true  },
-      { id:11, country:"Niederlande", city:"Rotterdam",       category:"Trinken",                        name:"Brouwerij de Pelgrim",    description:"",                              url:"https://www.pelgrimbier.nl/",                                   lat:51.908512,        lng:4.448563,         approximate:true  },
-      { id:12, country:"Niederlande", city:"Utrecht",         category:"Essen, Trinken, Erleben, Shopping", name:"Stadtzentrum",         description:"Viele Restaurants direkt am Wasser", url:"https://de.wikipedia.org/wiki/Utrecht",                    lat:52.0918067,       lng:5.1173233,        approximate:true  },
-      { id:13, country:"Niederlande", city:"Den Haag",        category:"Architektur, Geschichte",        name:"Binnenhof",               description:"",                              url:"https://de.wikipedia.org/wiki/Binnenhof",                       lat:52.0795985,       lng:4.313273,         approximate:false },
-      { id:14, country:"Niederlande", city:"Den Haag",        category:"Architektur, Geschichte",        name:"Paleis Noordeinde",       description:"",                              url:"https://de.wikipedia.org/wiki/Palais_Noordeinde",               lat:52.0807452,       lng:4.3064802,        approximate:false },
-      { id:15, country:"Niederlande", city:"Den Haag",        category:"Essen, Trinken, Shopping",       name:"Grote Marktstraat",       description:"",                              url:"https://denhaag.com/de/grote-marktstraat",                      lat:52.076391,        lng:4.311252,         approximate:false },
-      { id:16, country:"Niederlande", city:"Scheveningen",    category:"Strand, Essen, Trinken, Erleben", name:"Kurhaus, Strand",        description:"",                              url:"https://de.wikipedia.org/wiki/Scheveningen",                    lat:52.113115,        lng:4.2818088,        approximate:false },
-      { id:17, country:"Niederlande", city:"Amsterdam",       category:"Essen, Trinken",                 name:"Hardrock Amsterdam",      description:"",                              url:"https://cafe.hardrock.com/amsterdam/",                          lat:52.361944,        lng:4.882778,         approximate:false },
-      { id:18, country:"Niederlande", city:"Amsterdam",       category:"Shopping",                       name:"Kalverstraat",            description:"",                              url:"https://nl.wikipedia.org/wiki/Kalverstraat",                    lat:52.368497,        lng:4.887997,         approximate:false },
-      { id:19, country:"Niederlande", city:"Amsterdam",       category:"Erleben, Kultur",                name:"Jordaan Viertel",         description:"",                              url:"https://de.wikipedia.org/wiki/Jordaan",                         lat:52.3739315,       lng:4.8808759,        approximate:false },
-      { id:20, country:"Niederlande", city:"Amsterdam",       category:"Kultur",                         name:"De Wallen",               description:"",                              url:"",                                                              lat:52.3718604,       lng:4.895861,         approximate:false },
-      { id:21, country:"Niederlande", city:"Amsterdam",       category:"Essen, Trinken",                 name:"Leidseplein",             description:"",                              url:"",                                                              lat:52.3637081,       lng:4.8820234,        approximate:false },
-      { id:22, country:"Niederlande", city:"Amsterdam",       category:"Kultur, Museum",                 name:"Körperwelten",            description:"",                              url:"https://www.bodyworlds.nl/de/",                                 lat:52.3748239,       lng:4.8947471,        approximate:false },
-      { id:23, country:"Niederlande", city:"Amsterdam",       category:"Erleben, Kultur",                name:"Grachtentour",            description:"",                              url:"https://grachten-tour.amsterdam/amsterdam-kanalfahrt/",          lat:52.378,           lng:4.9001,           approximate:true  },
-      { id:24, country:"Niederlande", city:"Amsterdam",       category:"Erleben, Kultur",                name:"Johann Cruyff Arena",     description:"Ajax Stadion und weitere Events", url:"https://www.johancruijffarena.nl/en/home/",                   lat:52.3145196428567, lng:4.941805782112762, approximate:true },
-      { id:25, country:"Niederlande", city:"Amsterdam",       category:"Übernachtung",                   name:"Hotel de Roode Leeuw",    description:"",                              url:"https://hotelamsterdam.nl/en/hotel-amsterdam-de-roode-leeuw/",  lat:52.373889,        lng:4.893889,         approximate:false },
-      { id:27, country:"Niederlande", city:"Kinderdijk",      category:"Erleben, Kultur",                name:"Unesco Mühlen",           description:"",                              url:"https://www.holland.com/de/tourist/entdecke-die-niederlande/entdecke-stadte/dordrecht", lat:51.8825, lng:4.649444, approximate:false },
-      { id:28, country:"Niederlande", city:"Hoek van Holland", category:"Strand, Essen, Trinken, Erleben", name:"Hoek van Holland",      description:"",                              url:"https://de.wikipedia.org/wiki/Hoek_van_Holland",                lat:51.9806322,       lng:4.1341847,        approximate:false },
-      { id:29, country:"Niederlande", city:"Gouda",           category:"Essen, Trinken",                 name:"Grand Café Central",      description:"Paix Dieu, x-Biere",            url:"https://grandcafecentral.nl/",                                  lat:52.011338,        lng:4.7109737,        approximate:true  },
-      { id:30, country:"Niederlande", city:"Gouda",           category:"Erleben, Wasser",                name:"Reeuwijkse Plassen",      description:"",                              url:"https://www.landal.ch/parks/de-reeuwijkse-plassen",             lat:52.041614,        lng:4.746311,         approximate:false },
-      { id:31, country:"Niederlande", city:"Gouda",           category:"Essen, Trinken, Erleben",        name:"Marktplaats",             description:"",                              url:"",                                                              lat:52.012161,        lng:4.71064,          approximate:true  },
-      { id:32, country:"Niederlande", city:"Gouda",           category:"Essen, Käse",                    name:"Kaaswinkel",              description:"",                              url:"",                                                              lat:52.011094,        lng:4.71061,          approximate:false },
-      { id:33, country:"Niederlande", city:"Gouda",           category:"Essen, Trinken",                 name:"IJsselhuis",              description:"Gemütliches Apéro im Grünen",   url:"",                                                              lat:52.006736,        lng:4.711321,         approximate:true  },
-      { id:34, country:"Niederlande", city:"Gouda",           category:"Kultur",                         name:"Windmühle",               description:"",                              url:"",                                                              lat:52.007778,        lng:4.706667,         approximate:true  },
-      { id:35, country:"Niederlande", city:"Gouda",           category:"Essen, Trinken, Erleben",        name:"Gouwestrand",             description:"",                              url:"https://gouwestrand.nl/",                                       lat:52.0055352,       lng:4.7150345,        approximate:false },
-      { id:36, country:"Niederlande", city:"Gouda",           category:"Essen, Glace",                   name:"Antonio Eis",             description:"Reeuwijkse Plassen",            url:"",                                                              lat:52.0352805,       lng:4.7551529,        approximate:false },
-      { id:37, country:"Niederlande", city:"Zoetermeer",      category:"Shopping",                       name:"Shopping Mall",           description:"",                              url:"https://stadshart.nl/",                                         lat:52.0617218,       lng:4.4899193,        approximate:false },
-      { id:38, country:"Belgien",     city:"Gent",            category:"Trinken, Kultur",                name:"Dulle Griet",             description:"Schuh abgeben wegen Bierglas",  url:"https://www.dullegriet.be/",                                    lat:51.0565707,       lng:3.72578,          approximate:true  },
-      { id:39, country:"Belgien",     city:"Gent",            category:"Geschichte, Kultur",             name:"Burg Gravensteen",        description:"",                              url:"https://de.wikipedia.org/wiki/Gravensteen",                     lat:51.0571406,       lng:3.7207281,        approximate:false },
-      { id:40, country:"Belgien",     city:"Gent",            category:"Übernachtung",                   name:"Hotel Gravensteen",       description:"",                              url:"",                                                              lat:51.055252,        lng:3.718786,         approximate:true  },
-      { id:41, country:"Belgien",     city:"Gent",            category:"Übernachtung",                   name:"Ghent River Hotel",       description:"",                              url:"",                                                              lat:51.054827,        lng:3.725487,         approximate:true  },
-      { id:42, country:"Belgien",     city:"Gent",            category:"Essen, Trinken, Erleben",        name:"Sint-Veerleplein",        description:"",                              url:"",                                                              lat:51.056533,        lng:3.721506,         approximate:false },
-      { id:43, country:"Belgien",     city:"Gent",            category:"Essen, Trinken, Erleben",        name:"Vrijdagmaarkt",           description:"",                              url:"",                                                              lat:51.056445,        lng:3.72578,          approximate:false },
-      { id:44, country:"Belgien",     city:"Gent",            category:"Essen, Trinken, Erleben",        name:"Korenmarkt",              description:"",                              url:"",                                                              lat:51.054633,        lng:3.7219431,        approximate:false },
-      { id:45, country:"Belgien",     city:"Gent",            category:"Essen, Trinken, Erleben",        name:"Osteria Delicati",        description:"",                              url:"",                                                              lat:51.05535,         lng:3.71971,          approximate:false },
-      { id:46, country:"Niederlande", city:"Amsterdam",       category:"Kultur, Erleben, Museum",                name:"Anne Frank Museum",       description:"Tickets früh buchen!",          url:"https://www.annefrank.org/de/",                                 lat:52.3751985225493, lng:4.884073056981051, approximate:true },
-      { id:47, country:"Niederlande", city:"Amsterdam",       category:"Erleben, Kultur",                name:"Madame Tussaud",          description:"Tickets früh buchen!",          url:"https://www.madametussauds.com/amsterdam/de/",                  lat:52.372748676851806, lng:4.8926211128021215, approximate:true },
-      { id:49, country:"Niederlande", city:"Maastricht",      category:"Essen, Trinken, Erleben, Museum",        name:"Maastricht",              description:"",                              url:"https://de.wikipedia.org/wiki/Maastricht",                      lat:50.85077794311516, lng:5.7043370320445055, approximate:false },
-      { id:50, country:"Niederlande", city:"Yerseke",         category:"Essen, Trinken, Erleben",        name:"Oesterij",                description:"",                              url:"https://www.oesterij.nl/",                                      lat:51.493149128994915, lng:4.053203955081658, approximate:true },
-      { id:51, country:"Niederlande", city:"Rotterdam",       category:"Essen, Trinken, Erleben",        name:"De Witte Aap",            description:"",                              url:"https://www.dewitteaap.nl/",                                    lat:51.91545038155924, lng:4.476250382090484, approximate:true },
-      { id:52, country:"Niederlande", city:"Zierikzee",       category:"Essen, Trinken, Erleben",        name:"Stadt",                   description:"",                              url:"https://de.wikipedia.org/wiki/Zierikzee",                       lat:51.65016496138678, lng:3.918818661147885, approximate:false },
-      { id:53, country:"Belgien",     city:"Leuven",          category:"Essen, Trinken, Erleben",        name:"Leuven",                  description:"",                              url:"https://nl.wikipedia.org/wiki/Grote_Markt_(Leuven)",            lat:50.87927029935661, lng:4.701163612719329, approximate:true },
-      { id:54, country:"Belgien",     city:"Brügge",          category:"Trinken",                        name:"Brouwerij de Halve Maan", description:"",                              url:"https://www.halvemaan.be/en",                                   lat:51.20256147908104, lng:3.224199440378169, approximate:true },
-      { id:55, country:"Belgien",     city:"Brügge",          category:"Essen, Trinken, Erleben",        name:"Restaurant Mozart",       description:"",                              url:"https://mozart-resto.be/",                                      lat:51.20960072566275, lng:3.2222952090368153, approximate:true },
-      { id:56, country:"Luxemburg", city:"Luxemburg",       category:"Übernachtung",                name:"INNSiDE by Mélia",       description:"etwas abgelegen im Büroviertel",          url:"https://www.melia.com/de/hotels/luxemburg/luxemburg/innside-luxembourg",                                 lat:49.58132209634048, lng:6.115512166619688, approximate:true },
-      { id:57, country:"Luxemburg", city:"Luxemburg",       category:"Essen",                name:"Pizzeria Chez Stefano",          description:"Öffnungszeiten beachten!",          url:"http://www.pizzeriachezstefano.lu/",                  lat:49.58210988362604, lng:6.116083477076875, approximate:true },
-      { id:58, country:"Niederlande", city:"Utrecht",      category:"Essen, Trinken, Erleben",        name:"Winkel van Sinkel",              description:"",                              url:"https://dewinkelvansinkel.nl/",                      lat: 52.09209333449356, lng:5.118652710025778, approximate:true },
-      { id:59, country:"Norwegen", city:"Oslo",         category:"Essen, Trinken, Erleben",        name:"inner Oslofjord",                description:"spezielles Quartier",                              url:"",                                      lat:59.9098419042923, lng:10.724408534986205, approximate:false },
-      { id:60, country:"Norwegen", city:"Oslo",       category:"Kultur, Architektur, Erleben",        name:"Opernhaus Oslo",            description:"Schönes Gebäude mit gemütlichem Platz am Wasser",                              url:"https://www.operaen.no/",                                    lat:59.908341120455006, lng:10.75211038978645, approximate:true },
-      { id:61, country:"Norwegen", city:"Oslo",       category:"Essen, Trinken, Erleben",        name:"Oslo StreetFood",                   description:"",                              url:"https://www.oslo-streetfood.no/",                       lat:59.91627998123616, lng:10.750865844653147, approximate:true },
-      { id:62, country:"Norwegen",     city:"Bergen",          category:"Übernachtung",        name:"Scandic Bergen City",                  description:"",                              url:"https://www.scandichotels.com/en/hotels/scandic-bergen-city?utm_source=google&utm_medium=organic&utm_campaign=gmb&utm_content=bergencity",            lat:60.391470497685425, lng:5.3173233573937475, approximate:true },
-      { id:63, country:"Norwegen",     city:"Bergen",          category:"Essen, Trinken",                        name:"Fish Me", description:"Fischrestaurant",                              url:"https://www.fishme.no/",                                   lat:60.39461637643274, lng:5.324128121665711, approximate:true },
-      { id:64, country:"Norwegen",     city:"Bergen",          category:"Essen, Trinken, Erleben",        name:"Jack's Country Saloon",       description:"",                              url:"https://www.tripadvisor.ch/Restaurant_Review-g190502-d14215547-Reviews-Jack_s_Country_Saloon-Bergen_Hordaland_Western_Norway.html",                                      lat:60.39525903120101, lng:5.324959606440046, approximate:true },
-      { id:65, country:"Norwegen", city:"Stavanger",       category:"Erleben, Kultur",        name:"Norwegisches Erdölmuseum",                   description:"",                              url:"http://www.norskolje.museum.no/",                       lat:58.974914726084236, lng:5.738012918449216, approximate:true },
-      { id:66, country:"Norwegen",     city:"Stavanger",          category:"Essen, Trinken",        name:"Fisketorget",                  description:"Fischrestaurant",                              url:"http://fisketorget-stavanger.no/",            lat:58.970507564995074, lng:5.730565144416888, approximate:true },
-      { id:67, country:"Norwegen",     city:"Stavanger",          category:"Essen, Trinken, Pub",                        name:"Yank's Bar", description:"Pub",                              url:"",                                   lat:58.97064269674319, lng:5.731277496719086, approximate:true },
-      { id:68, country:"Norwegen",     city:"Ryfylke",          category:"Erleben",        name:"Preikestolen",       description:"Wanderung",                              url:"https://www.tripadvisor.ch/Restaurant_Review-g190502-d14215547-Reviews-Jack_s_Country_Saloon-Bergen_Hordaland_Western_Norway.html",                                      lat:58.991782264900706, lng:6.138242368870413, approximate:true },
-{ id:69, country:"Norwegen", city:"Stavanger",       category:"Architektur, Kultur",                name:"Fargegaten",       description:"Spezielle Gassen",          url:"https://igdaf.top/fargegaten",                                 lat:58.97280943585602, lng:5.733123159877564, approximate:true },
-      { id:70, country:"Norwegen", city:"Bergen",       category:"Erleben, Architektur",                name:"Hanseviertel",          description:"",          url:"https://de.wikipedia.org/wiki/Bryggen",                  lat:60.3972709792851, lng:5.323487916220645, approximate:false },
-      { id:71, country:"Norwegen", city:"Bergen",      category:"Erleben, Wanderung",        name:"Floyen Panorama",              description:"Aussicht auf die Stadt",                              url:"https://www.floyen.no/floibanen",                      lat: 60.395365306116325, lng:5.33746249368493, approximate:true },
-      { id:72, country:"Norwegen", city:"Bergen",         category:"Essen, Trinken, Pub",        name:"Scruffy Murphys",                description:"Pub",                              url:"https://scruffymurphys.no/",                                      lat:60.395265790939185, lng:5.326275192605972, approximate:true },
-      { id:73, country:"Norwegen", city:"Bergen",       category:"Essen, Trinken",        name:"Jack's Country Saloon",            description:"",                              url:"https://www.tripadvisor.ch/Restaurant_Review-g190502-d14215547-Reviews-Jack_s_Country_Saloon-Bergen_Hordaland_Western_Norway.html",                                    lat:60.39524988161666, lng:5.324960128697973, approximate:true },
-      { id:74, country:"Norwegen", city:"Bergen",       category:"Essen, Trinken",        name:"Fjellskål Seafood Restaurant",                   description:"Fischrestaurant",                              url:"https://www.fjellskaal.no/",                       lat:60.394641678595, lng:5.323600248731481, approximate:true },
-      { id:75, country:"Norwegen",     city:"Oslo",          category:"Erleben, Museum",        name:"Homenkollbakken",                  description:"Skisprungschanze, Museum, Biathlon Arena",                              url:"https://www.skiforeningen.no/holmenkollen/",            lat:59.9651167765788, lng:10.664667826708131, approximate:true },
-      { id:76, country:"Albanien",     city:"Tirana",          category:"Übernachtung",                        name:"Hotel la Favorita", description:"evtl. Hotel Europa",                              url:"https://www.tripadvisor.at/Hotel_Review-g294446-d33300889-Reviews-Hotel_La_Favorita-Tirana_Tirana_County.html",                                   lat:41.3261151584141, lng:19.81487139920804, approximate:true },
-      { id:77, country:"Albanien",     city:"Tirana",          category:"Essen, Trinken, Erleben, Pub",        name:"New Irish Pub",       description:"Pub mit Karaoke",                              url:"http://newirishpub.al/",                                      lat:41.32175209408792, lng:19.81686921034588, approximate:true },
-      { id:78, country:"Albanien", city:"Tirana",       category:"Erleben, Kultur",        name:"Pyramide von Tirana",                   description:"",                              url:"https://piramida.edu.al/",                       lat:41.32320242811909, lng:19.821450423312406, approximate:true },
-      { id:79, country:"Frankreich", city:"Colmar",       category:"Trinken, Pub",                name:"James'On",          description:"Pub",          url:"https://check.fm/pub-james-on-bar-colmar-15221",                  lat:48.0752978336709, lng:7.358414293729095, approximate:true },
-      { id:80, country:"Frankreich", city:"Colmar",      category:"Trinken",        name:"Kraken",              description:"",                              url:"https://krakencolmar.com/",                      lat: 48.078644128391716, lng:7.3543455466303795, approximate:true },
-      { id:81, country:"Frankreich", city:"Colmar",         category:"Essen, Trinken",        name:"Bar L'Augustin",                description:"",                              url:"",                                      lat:48.07633910461538, lng:7.35778926686806, approximate:true },
-      { id:82, country:"Frankreich", city:"Colmar",       category:"Essen, Trinken",        name:"The 3 Monkeys",            description:"",                              url:"",                                    lat:48.07505915967625, lng:7.357210802450023, approximate:true },
-      { id:83, country:"Frankreich", city:"Colmar",       category:"Essen, Trinken",        name:"Le Shelby",                   description:"",                              url:"",                       lat:48.077410553670475, lng:7.355912915951804, approximate:true },
-      { id:84, country:"Frankreich",     city:"Colmar",          category:"Übernachtung",        name:"Beauty & The Beast",                  description:"Wohnung",                              url:"https://www.france-visit.fr/beauty-the-beast-old-town-cosy-apartments/",            lat:48.07827415936791, lng:7.360636539154775, approximate:true },
-      { id:85, country:"Frankreich",     city:"Colmar",          category:"Trinken",                        name:"O'Rabbit's Irish Pub",     description:"",                         url:"https://menu.vazeepro.com/?id=G9HSJQRSWJ&o=q",                                   lat:48.07922941400608, lng:7.357350654433391, approximate:true },
-      { id:86, country:"Deutschland",     city:"Köln",          category:"Essen, Trinken",        name:"Söckchen Altstadtkneipe",       description:"",                              url:"https://www.facebook.com/profile.php?id=61575853536358",                                      lat:50.93683152798704, lng:6.962818920592445, approximate:true },
-      { id:87, country:"Deutschland", city:"Köln",       category:"Erleben, Kultur",        name:"Kölner Dom",                   description:"",                              url:"https://www.koelner-dom.de/",                       lat:50.941413312563895, lng:6.95826383263671, approximate:true },
-      { id:88, country:"Deutschland", city:"Köln",       category:"Essen, Trinken, Kultur",        name:"Am Leystapel",                   description:"X Restaurants am Wasser",                              url:"",                       lat:50.93980576407453, lng:6.961931636547996, approximate:false },
-      { id:89, country:"Deutschland", city:"Köln",       category:"Essen, Trinken, Kultur",        name:"Alter Markt",                   description:"X Restaurants & Bars",                              url:"",                       lat:50.938882604852104, lng:6.960045090104697, approximate:false },
-      { id:90, country:"Deutschland", city:"Köln",       category:"Essen, Trinken, Kultur",        name:"Brauhaus zum Prinzen",                   description:"Podolski Bar",                              url:"http://zum-prinzen.com/",                       lat:50.93812139172097, lng:6.960447232479408, approximate:true },
-      { id:91, country:"Deutschland", city:"Köln",       category:"Übernachtung",                name:"Motel One",          description:"",          url:"https://www.motel-one.com/hotels/koeln/hotel-koeln-neumarkt/",                  lat:50.93567728297534, lng:6.951133882877231, approximate:true },
-      { id:92, country:"Deutschland", city:"Köln",      category:"Übernachtung",        name:"Station Hostel",              description:"",                              url:"http://www.hostel-cologne.de/en/",                      lat: 50.94408123946037, lng:6.956060975791713, approximate:true },
-      { id:93, country:"Deutschland", city:"Heidelberg",         category:"Essen, Trinken, Übernachtung, Pub",        name:"The Dubliner Hotel & Pub",                description:"Pub & Hotel",                              url:"http://www.dublinerheidelberg.com/",                                      lat:49.411335988973065, lng:8.702611841310494, approximate:true },
-      { id:94, country:"Deutschland", city:"Heidelberg",       category:"Trinken",        name:"Weinloch Bar",            description:"Oldschool Kneipe",                              url:"http://www.weinloch.com/",                                    lat:49.41226560399166, lng:8.707678680452581, approximate:true },
-      { id:95, country:"Deutschland", city:"Heidelberg",       category:"Trinken",        name:"Sonderbar",                   description:"Name ist Programm",                              url:"https://die-untere.de/?q=Sonder%20Bar",                       lat:49.41223239986356, lng:8.707359710247692, approximate:true },
-      { id:96, country:"Deutschland",     city:"Heidelberg",          category:"Essen, Trinken",        name:"Weinstube Schnitzelbank",                  description:"",                              url:"https://www.schnitzelbank-heidelberg.de/",            lat:49.411466903228145, lng:8.702268572587233, approximate:true },
-      { id:97, country:"Deutschland",     city:"Heidelberg",          category:"Essen, Trinken",                        name:"Vetter's Alt Brauhaus",     description:"",                         url:"http://www.brauhaus-vetter.de/",                                   lat:49.41261639687876, lng:8.709682309095191, approximate:true },
-      { id:98, country:"Deutschland",     city:"Heidelberg",          category:"Essen, Trinken",        name:"Trattoria Toscana",       description:"",                              url:"http://www.trattoria-toscana-hd.de/",                                      lat:49.41233607598488, lng:8.709737913126165, approximate:true },
-      { id:99, country:"Deutschland", city:"Heidelberg",       category:"Erleben, Kultur, Wanderung",        name:"Schloss Heidelberg",                   description:"",                              url:"https://www.schloss-heidelberg.de/",                       lat:49.41066739338314, lng:8.715270123553427, approximate:true },
-      { id:100, country:"Deutschland", city:"Wiesbaden",       category:"Essen, Trinken, Pub",        name:"Scotch'n'Soda",                   description:"",                              url:"https://www.tripadvisor.ch/Restaurant_Review-g187346-d1980238-Reviews-Scotch_n_Soda-Wiesbaden_Hesse.html",                       lat:50.08397614263814, lng:8.240877612270106, approximate:true },
-      { id:101, country:"Deutschland", city:"Heidelberg",       category:"Übernachtung",        name:"acor Boutique Hotel",                   description:"",                              url:"https://acor-hotel.de/",                       lat:49.40931409332102, lng:8.703751308610286, approximate:false },
-      { id:102, country:"Deutschland", city:"Saarbrücken",       category:"Essen, Trinken,",        name:"Brauhaus zum Stiefel",                   description:"",                              url:"http://www.brauhaus-zum-stiefel.de/",                       lat:49.23291866637891, lng:6.995141106030041, approximate:true },
-      { id:103, country:"Deutschland", city:"Saarbrücken",       category:"Essen, Trinken",        name:"Old Murphys",                   description:"",                              url:"http://www.oldmurphys.de/",                       lat:49.23284281800768, lng:6.995412888953405, approximate:true },
-      { id:104, country:"Deutschland", city:"Saarbrücken",       category:"Übernachtung",        name:"Hotel am Triller",                   description:"etwas erhöht und nicht direkt im Stadtzentrum",                              url:"http://www.hotel-am-triller-saarbruecken.de/",                       lat:49.228952570818755, lng:6.990944542030663, approximate:true },
-      { id:105, country:"Deutschland", city:"Wiesbaden",       category:"Übernachtung",        name:"Radisson Blu Schwarzer Bock",                   description:"altes Kurhaus",                              url:"https://www.radissonhotels.com/en-us/hotels/radisson-blu-wiesbaden-schwarzer-bock?cid=a:se+b:gmb+c:emea+i:local+e:rdb+d:cese+h:DEUWEBCK",                       lat:50.08540600938136, lng:8.24180244829348, approximate:true },
-      { id:106, country:"Niederlande", city:"Utrecht",       category:"Erleben, Museum",        name:"Nederlands Spoorwegenmuseum",                   description:"",                              url:"http://www.spoorwegmuseum.nl/",                       lat:52.08814981113793, lng:5.131112931446471, approximate:true },
-    ];
-
-    // ── State ──────────────────────────────────────────────────────────────────
-    const state = {
-      search: "",
-      country: "Alle",
-      city: "Alle",
-      category: "Alle",
-      approx: "Alle",
-      selectedId: null
-    };
-
-    // ── DOM-Referenzen ─────────────────────────────────────────────────────────
-    const searchInput    = document.getElementById("search");
-    const countryFilter  = document.getElementById("countryFilter");
-    const cityFilter     = document.getElementById("cityFilter");
-    const categoryFilter = document.getElementById("categoryFilter");
-    const approxFilter   = document.getElementById("approxFilter");
-    const spotList       = document.getElementById("spotList");
-    const detailPanel    = document.getElementById("detailPanel");
-    const statsEl        = document.getElementById("stats");
-    const fitMapBtn      = document.getElementById("fitMapBtn");
-    const loadMapBtn     = document.getElementById("loadMapBtn");
-    const mapPlaceholder = document.getElementById("mapPlaceholder");
-    const clearFiltersBtn = document.getElementById("clearFiltersBtn");
-    const jumpToMapBtn = document.getElementById("jumpToMapBtn");
-    const detailToMapBtn = document.getElementById("detailToMapBtn");
-    const mobileLoadMapBtn = document.getElementById("mobileLoadMapBtn");
-    const mobileTopBtn = document.getElementById("mobileTopBtn");
-
-    // ── Karte (lazy geladen, spart Traffic) ───────────────────────────────────
-    let map;
-    let markersLayer;
-    let leafletReady = false;
-    let mapLoadPromise = null;
-
-    // Marker-Referenzen für gezielten Popup-Zugriff
-    const markerMap = new Map(); // id → L.Marker
-
-    function loadLeafletAssets() {
-      return new Promise((resolve, reject) => {
-        if (window.L) return resolve();
-
-        const existingCss = document.querySelector('link[data-leaflet="true"]');
-        if (!existingCss) {
-          const link = document.createElement("link");
-          link.rel = "stylesheet";
-          link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-          link.crossOrigin = "";
-          link.dataset.leaflet = "true";
-          document.head.appendChild(link);
-        }
-
-        const existingScript = document.querySelector('script[data-leaflet="true"]');
-        if (existingScript) {
-          existingScript.addEventListener("load", () => resolve(), { once: true });
-          existingScript.addEventListener("error", () => reject(new Error("Leaflet konnte nicht geladen werden.")), { once: true });
-          return;
-        }
-
-        const script = document.createElement("script");
-        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-        script.crossOrigin = "";
-        script.dataset.leaflet = "true";
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error("Leaflet konnte nicht geladen werden."));
-        document.body.appendChild(script);
-      });
-    }
-
-    async function ensureMap() {
-      if (leafletReady) return map;
-      if (mapLoadPromise) return mapLoadPromise;
-
-      mapLoadPromise = (async () => {
-        await loadLeafletAssets();
-        map = L.map("map", { zoomControl: true });
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution: '&copy; OpenStreetMap-Mitwirkende'
-        }).addTo(map);
-
-        markersLayer = L.layerGroup().addTo(map);
-        document.getElementById("map").hidden = false;
-        mapPlaceholder.hidden = true;
-        fitMapBtn.disabled = false;
-        leafletReady = true;
-        setTimeout(() => map.invalidateSize(), 50);
-        return map;
-      })();
-
-      return mapLoadPromise;
-    }
-
-    // ── Hilfsfunktionen ───────────────────────────────────────────────────────
-
-    // FIX: Kategorien werden als einzelne Tags gespeichert (kommasepariert aufgeteilt)
-    function allCategories() {
-      const set = new Set();
-      spots.forEach(s => s.category.split(",").forEach(c => set.add(c.trim())));
-      return ["Alle", ...[...set].sort((a, b) => a.localeCompare(b, "de"))];
-    }
-
-    function uniqueValues(key, base = spots) {
-      return ["Alle", ...Array.from(new Set(base.map(s => s[key]).filter(Boolean)))
-        .sort((a, b) => String(a).localeCompare(String(b), "de"))];
-    }
-
-    function populateFilters() {
-      countryFilter.innerHTML  = uniqueValues("country").map((v, i) => `<option value="${v}">${i === 0 ? "Land" : v}</option>`).join("");
-      categoryFilter.innerHTML = allCategories().map((v, i) => `<option value="${v}">${i === 0 ? "Kategorie" : v}</option>`).join("");
-      refreshCityOptions();
-    }
-
-    function refreshCityOptions() {
-      const base = state.country === "Alle" ? spots : spots.filter(s => s.country === state.country);
-      const cities = uniqueValues("city", base);
-      const current = cities.includes(state.city) ? state.city : "Alle";
-      cityFilter.innerHTML = cities.map((v, i) => `<option value="${v}">${i === 0 ? "Stadt" : v}</option>`).join("");
-      state.city = current;
-      cityFilter.value = current;
-    }
-
-    // FIX: Kategorie-Matching prüft nun jede einzelne Teilkategorie
-    function filteredSpots() {
-      const q = state.search.trim().toLowerCase();
-      return spots.filter(spot => {
-        const haystack = [spot.name, spot.city, spot.country, spot.category, spot.description]
-          .join(" ").toLowerCase();
-        const matchesSearch   = !q || haystack.includes(q);
-        const matchesCountry  = state.country === "Alle" || spot.country === state.country;
-        const matchesCity     = state.city    === "Alle" || spot.city    === state.city;
-        const matchesApprox   = state.approx  === "Alle" ||
-          (state.approx === "Exakt" ? !spot.approximate : spot.approximate);
-
-        // Einzelne Kategorien aus dem Spot aufteilen und prüfen
-        const spotCats      = spot.category.split(",").map(c => c.trim());
-        const matchesCategory = state.category === "Alle" || spotCats.includes(state.category);
-
-        return matchesSearch && matchesCountry && matchesCity && matchesApprox && matchesCategory;
-      });
-    }
-
-    function markerIcon(spot, selected) {
-      const color = selected
-        ? "#0ea5e9"
-        : (spot.approximate ? "#f59e0b" : "#2563eb");
-      return L.divIcon({
-        className: "",
-        html: `<div style="width:${selected?22:18}px;height:${selected?22:18}px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.4);transition:.15s"></div>`,
-        iconSize:   [selected?22:18, selected?22:18],
-        iconAnchor: [selected?11:9,  selected?11:9],
-        popupAnchor:[0,-8]
-      });
-    }
-
-    // FIX: fitToAll-Flag trennt "Alle zeigen" von "Einzelnen selektieren"
-    function updateMarkers(list, fitToAll = true) {
-      if (!leafletReady) return;
-      markersLayer.clearLayers();
-      markerMap.clear();
-
-      const bounds = [];
-
-      list.forEach(spot => {
-        const selected = spot.id === state.selectedId;
-        const marker = L.marker([spot.lat, spot.lng], { icon: markerIcon(spot, selected) })
-          .addTo(markersLayer)
-          .bindPopup(`<strong>${spot.name}</strong><br>${spot.city}, ${spot.country}<br><span style="color:#64748b">${spot.category}</span>`);
-
-        marker.on("click", () => {
-          state.selectedId = spot.id;
-          // Beim Klick auf Marker: nur Detailansicht und Marker aktualisieren, nicht zoomen
-          renderList(list);
-          renderDetail(list);
-          updateMarkers(list, false);
-        });
-
-        markerMap.set(spot.id, marker);
-        bounds.push([spot.lat, spot.lng]);
-      });
-
-      if (fitToAll) {
-        // Alle Treffer auf der Karte zeigen
-        if (bounds.length) map.fitBounds(bounds, { padding: [40, 40] });
-        else map.setView([52.1, 4.8], 7);
-      } else {
-        // FIX: Auf selektierten Marker zentrieren und Popup öffnen
-        const sel = list.find(s => s.id === state.selectedId);
-        if (sel) {
-          map.setView([sel.lat, sel.lng], Math.max(map.getZoom(), 14), { animate: true });
-          markerMap.get(sel.id)?.openPopup();
-        }
-      }
-    }
-
-    // FIX: Event-Delegation statt querySelectorAll nach jedem Render
-    function renderList(list) {
-      statsEl.textContent = `${list.length} Treffer`;
-
-      if (!list.length) {
-        spotList.innerHTML = `<div class="empty">Keine Einträge gefunden.</div>`;
-        return;
-      }
-
-      spotList.innerHTML = list.map(spot => `
-        <button class="spot ${state.selectedId === spot.id ? "active" : ""}" data-id="${spot.id}">
-          <div class="spot-top">
-            <div>
-              <div class="spot-name">${spot.name}</div>
-              <p class="spot-meta">${spot.city}, ${spot.country}</p>
-            </div>
-            <span class="tag">${spot.category}</span>
-          </div>
-          <p class="spot-desc">${spot.description || "Kein Zusatztext hinterlegt."}</p>
-        </button>
-      `).join("");
-    }
-
-    // Einmal gesetzt, delegiert spotList alle Klicks
-    spotList.addEventListener("click", e => {
-      const btn = e.target.closest(".spot[data-id]");
-      if (!btn) return;
-      state.selectedId = Number(btn.dataset.id);
-      const list = filteredSpots();
-      renderList(list);
-      renderDetail(list);
-      // FIX: Karte zoomt nur auf den selektierten Spot, nicht auf alle
-      updateMarkers(list, false);
-    });
-
-    function renderDetail(list) {
-      const spot = list.find(s => s.id === state.selectedId) || list[0] || null;
-
-      if (!spot) {
-        detailPanel.innerHTML = `
-          <h3>Kein Spot gefunden</h3>
-          <div class="meta">Passe die Filter an.</div>
-          <p>Zurzeit passt kein Eintrag zu deiner Auswahl.</p>`;
-        return;
-      }
-
-      state.selectedId = spot.id;
-
-      detailPanel.innerHTML = `
-        <h3>${spot.name}</h3>
-        <div class="meta">${spot.city}, ${spot.country} · ${spot.category}</div>
-        <p>${spot.description || "Kein Zusatztext hinterlegt."}</p>
-        ${spot.url ? `<p><a href="${spot.url}" target="_blank" rel="noreferrer">Quelle / Website öffnen ↗</a></p>` : ""}
-        <p><a href="https://www.openstreetmap.org/?mlat=${spot.lat}&mlon=${spot.lng}#map=16/${spot.lat}/${spot.lng}"
-             target="_blank" rel="noreferrer">In OpenStreetMap öffnen ↗</a></p>
-        ${spot.approximate ? '<span class="pill-note">Pin ist leicht angenähert</span>' : ""}`;
-    }
-
-    // FIX: filteredSpots() wird pro render() nur einmal aufgerufen
-    function render(fitToAll = true) {
-      const list = filteredSpots();
-      renderList(list);
-      renderDetail(list);
-      updateMarkers(list, fitToAll);
-      if (mobileLoadMapBtn) {
-        mobileLoadMapBtn.disabled = leafletReady;
-        mobileLoadMapBtn.textContent = leafletReady ? "Karte aktiv" : "Karte laden";
-      }
-    }
-
-    // ── Event-Listener ─────────────────────────────────────────────────────────
-
-    // FIX: Debounce auf Sucheingabe (200 ms)
-    let debounceTimer;
-    searchInput.addEventListener("input", e => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        state.search = e.target.value;
-        render();
-      }, 200);
-    });
-
-    countryFilter.addEventListener("change", e => {
-      state.country = e.target.value;
-      state.city = "Alle";
-      refreshCityOptions();
-      render();
-    });
-
-    cityFilter.addEventListener("change", e => {
-      state.city = e.target.value;
-      render();
-    });
-
-    categoryFilter.addEventListener("change", e => {
-      state.category = e.target.value;
-      render();
-    });
-
-    approxFilter.addEventListener("change", e => {
-      state.approx = e.target.value;
-      render();
-    });
-
-    loadMapBtn.addEventListener("click", async () => {
-      loadMapBtn.disabled = true;
-      loadMapBtn.textContent = "Karte wird geladen...";
-      try {
-        await ensureMap();
-        render(true);
-        loadMapBtn.textContent = "Karte geladen";
-      } catch (error) {
-        loadMapBtn.disabled = false;
-        loadMapBtn.textContent = "Karte laden";
-        mapPlaceholder.innerHTML = `<div><strong>Karte konnte nicht geladen werden.</strong>${error.message}</div>`;
-      }
-    });
-
-    // "Auf Treffer zoomen" lädt die Karte erst, wenn sie wirklich gebraucht wird
-    fitMapBtn.addEventListener("click", async () => {
-      await ensureMap();
-      render(true);
-    });
-
-    function scrollToMap() {
-      document.querySelector('.head').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function resetFilters() {
-      state.search = "";
-      state.country = "Alle";
-      state.city = "Alle";
-      state.category = "Alle";
-      state.approx = "Alle";
-      searchInput.value = "";
-      countryFilter.value = "Alle";
-      refreshCityOptions();
-      cityFilter.value = "Alle";
-      categoryFilter.value = "Alle";
-      approxFilter.value = "Alle";
-      render();
-      listEl.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    clearFiltersBtn?.addEventListener('click', resetFilters);
-    jumpToMapBtn?.addEventListener('click', scrollToMap);
-    detailToMapBtn?.addEventListener('click', scrollToMap);
-    mobileLoadMapBtn?.addEventListener('click', () => loadMapBtn.click());
-    mobileTopBtn?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-    // ── Init ──────────────────────────────────────────────────────────────────
-    populateFilters();
-    render();
-  </script>
 </body>
 </html>
