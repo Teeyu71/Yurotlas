@@ -22,10 +22,7 @@
       background:var(--panel); border:1px solid var(--border); border-radius:28px; box-shadow:var(--shadow); backdrop-filter:blur(10px);
     }
     .sidebar { padding:18px; position:sticky; top:12px; height:calc(100vh - 24px); overflow:auto; }
-    .title-row { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:18px; }
-    .title h1 { margin:0; font-size:2rem; }
-    .title p { margin:6px 0 0; color:var(--muted); }
-    .pin { width:50px; height:50px; border-radius:18px; display:grid; place-items:center; background:rgba(56,189,248,.14); color:var(--accent); font-size:1.4rem; }
+    .title-row { display:flex; align-items:center; margin-bottom:18px; }
     .controls { display:grid; gap:10px; margin-bottom:16px; }
     .input,.select {
       width:100%; background:var(--card); border:1px solid #334155; color:var(--text);
@@ -84,15 +81,15 @@
     }
     .btn[disabled] { opacity:.6; cursor:not-allowed; }
 
-  
-    .brand { display:flex; gap:14px; align-items:center; }
-    .brand-copy h1 { margin:0; font-size:1.9rem; line-height:1.1; letter-spacing:.01em; }
-    .brand-copy p { margin:6px 0 0; color:var(--muted); line-height:1.45; font-size:.95rem; }
-    .brand-logo { width:64px; height:64px; border-radius:20px; display:block; flex:0 0 auto; box-shadow:0 12px 30px rgba(0,0,0,.25); border:1px solid rgba(56,189,248,.28); background:#0b1220; padding:4px; }
-    .helper-row { display:flex; gap:10px; flex-wrap:wrap; margin:-2px 0 16px; }
-    .chip {
-      display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px;
-      background:#101a2c; border:1px solid var(--border); color:var(--muted); font-size:.83rem;
+
+    .brand { display:flex; }
+    .brand-box {
+      width:84px; height:84px; border-radius:22px; display:flex; align-items:center; justify-content:center;
+      border:1px solid rgba(56,189,248,.28); background:#0b1220; box-shadow:0 12px 30px rgba(0,0,0,.25);
+      overflow:hidden;
+    }
+    .brand-logo {
+      width:100%; height:100%; display:block; object-fit:contain; padding:10px;
     }
     .quick-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
     .btn-ghost {
@@ -104,9 +101,7 @@
     .mobile-bar { display:none; }
     @media (max-width: 980px) {
       .sidebar { padding:16px; }
-      .brand { align-items:flex-start; }
-      .brand-logo { width:56px; height:56px; }
-      .brand-copy h1 { font-size:1.6rem; }
+      .brand-box { width:76px; height:76px; }
       .head { flex-direction:column; align-items:flex-start; }
       .map-actions, .quick-actions, .detail-actions { width:100%; }
       .map-actions > *, .quick-actions > * { flex:1 1 180px; justify-content:center; }
@@ -127,18 +122,10 @@
     <aside class="panel sidebar">
       <div class="title-row">
         <div class="brand">
-          <img class="brand-logo" src="./yurotlas-logo-v2.svg" alt="Yurotlas Logo" />
-          <div class="brand-copy">
-            <p><strong>Plane Highlights, speichere Favoriten im Kopf und finde Orte schneller wieder.</strong></p>
-            <p>Dein kompakter Reisebegleiter für Städte, Spots und spontane Ideen.</p>
+          <div class="brand-box">
+            <img class="brand-logo" src="./yurotlas-logo-v2.svg" alt="Yurotlas Logo" />
           </div>
         </div>
-      </div>
-
-      <div class="helper-row">
-        <span class="chip">✨ Direkt loslegen</span>
-        <span class="chip">📍 Alles im Blick</span>
-        <span class="chip">🧭 Karte & Liste</span>
       </div>
 
       <div class="controls">
@@ -169,8 +156,8 @@
       <section class="panel">
         <div class="head">
           <div>
-            <h2>Übersichtskarte</h2>
-            <p>Öffne die Karte, um alle passenden Orte direkt zu sehen.</p>
+            <h2>Karte</h2>
+            <p>Alle passenden Orte auf einen Blick.</p>
           </div>
           <div class="map-actions">
             <button id="loadMapBtn" class="btn-secondary" type="button">Karte laden</button>
@@ -180,8 +167,8 @@
         <div class="map-shell">
           <div id="mapPlaceholder" class="map-placeholder">
             <div>
-              <strong>Bereit, wenn du es bist.</strong>
-              Tippe auf „Karte laden“, um die Orte direkt auf der Karte zu erkunden.
+              <strong>Karte bereit</strong>
+              Tippe auf „Karte laden“, um die Orte direkt auf der Karte zu sehen.
             </div>
           </div>
           <div id="map" hidden></div>
@@ -196,11 +183,11 @@
         <section class="panel detail" id="detailPanel">
           <h3>Ort auswählen</h3>
           <div class="meta">Wähle einen Eintrag aus der Liste oder einen Marker auf der Karte.</div>
-          <p>Hier erscheinen danach die wichtigsten Infos, ein passender Link und der schnellste Weg zurück zur Karte.</p>
+          <p>Hier erscheinen danach die wichtigsten Infos und die passenden Links.</p>
           <div class="detail-actions">
             <button id="detailToMapBtn" class="btn-ghost" type="button">Zur Karte</button>
           </div>
-          <div class="detail-card-note">Hinweis: Auf dem Handy bleibt alles bewusst kompakt, damit du schneller zwischen Suche, Liste und Karte wechseln kannst.</div>
+          <div class="detail-card-note">Die Ansicht bleibt bewusst kompakt, damit du schnell zwischen Suche, Liste und Karte wechseln kannst.</div>
         </section>
       </div>
     <div class="mobile-bar">
@@ -348,7 +335,7 @@
     const mobileLoadMapBtn = document.getElementById("mobileLoadMapBtn");
     const mobileTopBtn = document.getElementById("mobileTopBtn");
 
-    // ── Karte (lazy geladen, spart Traffic) ───────────────────────────────────
+    // ── Karte ──────────────────────────────────────────────────────────────────
     let map;
     let markersLayer;
     let leafletReady = false;
@@ -395,9 +382,10 @@
       mapLoadPromise = (async () => {
         await loadLeafletAssets();
         map = L.map("map", { zoomControl: true });
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution: '&copy; OpenStreetMap-Mitwirkende'
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+          subdomains: "abcd",
+          maxZoom: 20,
+          attribution: '&copy; OpenStreetMap-Mitwirkende &copy; CARTO'
         }).addTo(map);
 
         markersLayer = L.layerGroup().addTo(map);
@@ -655,7 +643,7 @@
       categoryFilter.value = "Alle";
       approxFilter.value = "Alle";
       render();
-      listEl.scrollTo({ top: 0, behavior: 'smooth' });
+      spotList.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     clearFiltersBtn?.addEventListener('click', resetFilters);
