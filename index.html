@@ -84,13 +84,29 @@
 
     .brand { display:flex; }
     .brand-box {
-      width:84px; height:84px; border-radius:22px; display:flex; align-items:center; justify-content:center;
-      border:1px solid rgba(56,189,248,.28); background:#0b1220; box-shadow:0 12px 30px rgba(0,0,0,.25);
-      overflow:hidden;
-    }
-    .brand-logo {
-      width:100%; height:100%; display:block; object-fit:contain; padding:10px;
-    }
+  width: 100%;
+  max-width: 320px;   /* 🔥 Logo darf breit sein */
+  height: 120px;      /* Höhe bleibt angenehm */
+
+  border-radius: 16px;
+  border: 1px solid rgba(56,189,248,.28);
+  background: #0b1220;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+.brand-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+
+  padding: 8px;  /* optional kleiner Rand */
+}
     .quick-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
     .btn-ghost {
       display:inline-flex; align-items:center; gap:8px; text-decoration:none; border:1px solid #334155; cursor:pointer;
